@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Өнгөт өдрүүд ✨</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero__text">
+        <div class="eyebrow">өнгө • emoji • жижигхэн тэмдэглэл</div>
+        <h1>Өнгөт өдрүүд ✨</h1>
+        <p>Өнөөдрийн mood-оо нэг emoji-оор сонгоод зөөлөн хадгалаарай ♡</p>
+      </div>
+      <div class="hero__bubble">🌈</div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab is-active" data-tab="today">Өнөөдөр</button>
+      <button class="tab" data-tab="calendar">Өдрүүд</button>
+      <button class="tab" data-tab="insights">Тойм</button>
+      <button class="tab" data-tab="detail">Тэмдэглэл</button>
+    </nav>
+
+    <main>
+      <section id="tab-today" class="tab-panel is-active">
+        <div class="layout-grid">
+          <div class="main-column">
+            <div class="card glass card-date">
+              <div>
+                <div class="date-title" id="selected-date-title"></div>
+                <p class="sub">Өөртөө ганцхан жижигхэн check-in хийчих ✿</p>
+              </div>
+            </div>
+
+            <div class="card mood-card-area">
+              <div class="section-head">
+                <h2>Өнөөдөр ямар мэдрэмжтэй байна?</h2>
+                <p id="selected-mood-helper">Зүгээр л нэгийг сонго, алба биш 🌈</p>
+              </div>
+
+              <div class="mood-grid">
+                {% for mood in moods %}
+                <button class="mood-btn" data-mood-key="{{ mood.key }}" data-color="{{ mood.color }}" data-label="{{ mood.label }}" data-emoji="{{ mood.emoji }}" data-helper="{{ mood.helper }}" type="button">
+                  <div class="mood-btn__emoji">{{ mood.emoji }}</div>
+                  <div class="mood-btn__label">{{ mood.label }}</div>
+                  <div class="mood-btn__helper">{{ mood.helper }}</div>
+                </button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="card note-card">
+              <label for="note" class="field-label">Жаахан тэмдэглэлээ ✍️</label>
+              <textarea id="note" placeholder="Өнөөдөр юу мэдрэгдэв? Хүсвэл 1-2 өгүүлбэр бичээрэй."></textarea>
+            </div>
+
+            <div class="save-row">
+              <button id="save-btn" class="save-btn" type="button">Хадгалах ✨</button>
+              <button id="clear-btn" class="ghost-btn" type="button">Цэвэрлэх</button>
+            </div>
+          </div>
+
+          <aside class="side-column">
+            <div class="card mood-preview" id="mood-preview-card">
+              <div class="preview-emoji" id="preview-emoji">🌼</div>
+              <div class="preview-title" id="preview-title">Энд өнөөдрийн мэдрэмж харагдана</div>
+              <div class="preview-helper" id="preview-helper">Нэг emoji сонгоод эхэлье</div>
+            </div>
+
+            <div class="card intensity-card">
+              <div class="field-label">Хэр хүчтэй мэдрэгдэж байна?</div>
+              <div class="intensity-value"><span id="intensity-value">3</span> / 5</div>
+              <input id="intensity" type="range" min="1" max="5" value="3">
+            </div>
+
+            <div class="card tags-card">
+              <div class="field-label">Тагууд</div>
+              <p class="sub">Хүсвэл 1-2-г сонгоорой</p>
+              <div class="tags-grid">
+                {% for tag in tags %}
+                <button class="tag-btn" data-tag="{{ tag }}" type="button">{{ tag }}</button>
+                {% endfor %}
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="tab-calendar" class="tab-panel">
+        <div class="card calendar-shell">
+          <div class="calendar-head">
+            <button id="prev-month" class="nav-btn" type="button">←</button>
+            <h2 id="calendar-title"></h2>
+            <button id="next-month" class="nav-btn" type="button">→</button>
+            <button id="jump-today" class="nav-btn nav-btn--today" type="button">Өнөөдөр</button>
+          </div>
+          <div class="weekdays">
+            {% for d in weekdays %}<div>{{ d }}</div>{% endfor %}
+          </div>
+          <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
+      </section>
+
+      <section id="tab-insights" class="tab-panel">
+        <div class="insights-grid">
+          <div class="card stat-card">
+            <div class="stat-label">Энэ долоо хоногийн гол мэдрэмж</div>
+            <div id="stat-dominant" class="stat-value">—</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Тэмдэглэлтэй өдрийн тоо</div>
+            <div id="stat-total" class="stat-value">0</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Дундаж хүч</div>
+            <div id="stat-intensity" class="stat-value">0 / 5</div>
+          </div>
+          <div class="card soft-card">
+            <h3>Зөөлөн ажиглалт</h3>
+            <p id="soft-insight">Энд чиний жижигхэн хэмнэл харагдана.</p>
+          </div>
+        </div>
+        <div class="card mood-list-card">
+          <h3>Сүүлийн бичлэгүүд</h3>
+          <div id="recent-entries" class="recent-entries"></div>
+        </div>
+      </section>
+
+      <section id="tab-detail" class="tab-panel">
+        <div class="detail-grid">
+          <div class="card detail-main">
+            <h2 id="detail-date">Өдөр сонгоно уу</h2>
+            <div id="detail-content" class="detail-content empty">Календараас нэг өдөр дарахад энд дэлгэрэнгүй харагдана.</div>
+          </div>
+          <div class="card detail-side">
+            <h3>Эргэн бодол нэмэх 💬</h3>
+            <p class="sub">Хэд хоногийн дараа харахад ямар санагдаж байна?</p>
+            <textarea id="reflection-text" placeholder="Одоо бодоход ямар санагдаж байна?"></textarea>
+            <button id="reflection-btn" class="save-btn small" type="button">Эргэн бодол хадгалах</button>
+            <div id="reflection-list" class="reflection-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="reflection-modal" class="modal hidden">
+    <div class="modal__backdrop"></div>
+    <div class="modal__card">
+      <button id="close-modal" class="modal__close" type="button">✕</button>
+      <h3>Эргэн бодлууд 💬</h3>
+      <div id="modal-reflections" class="modal-reflections"></div>
+    </div>
+  </div>
+
+  <script>
+    window.APP_DATA = {
+      moods: {{ moods | tojson }},
+      tags: {{ tags | tojson }},
+      months: {{ months | tojson }},
+      today: {{ today | tojson }},
+      entries: {{ entries | tojson }},
+    };
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
